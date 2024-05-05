@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "57332724166",
+    "project_id": "medoc-001",
+    "storage_bucket": "medoc-001.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:57332724166:android:87531780752e43458602c7",
+        "android_client_info": {
+          "package_name": "com.wedoc"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD7rTrGBGcpnCi3icYqf34K_Nqt7q_gIL4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
