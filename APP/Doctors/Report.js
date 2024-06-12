@@ -58,6 +58,7 @@ const handleOpenCamera = () => {
           <Text style={styles.buttonText}>Open Camera</Text>
         </TouchableOpacity>
       </View>
+      
       {/* Fixed bottom bar with picture buttons */}
       <View style={styles.bottomBar}>
         <TouchableOpacity style={styles.iconButton} onPress={handleDashboard}>

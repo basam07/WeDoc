@@ -28,6 +28,7 @@ import DrDashboard from './Doctors/Dashboard';
 import DrReport from './Doctors/Report';
 import Patient from './Doctors/Patients';
 import PatientProfile from './Doctors/Profile';
+import ChatPage from './Doctors/Chat';
 
 
 
@@ -58,6 +59,7 @@ const App = () => {
         <Stack.Screen name="DocterReport" component={DrReport} />
         <Stack.Screen name="Patients" component={Patient} />
         <Stack.Screen name="PatientProfile" component={PatientProfile} />
+        <Stack.Screen name="PatientChat" component={ChatPage} />
 
       </Stack.Navigator>
     </NavigationContainer>

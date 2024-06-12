@@ -1,4 +1,6 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
+import firestore from '@react-native-firebase/firestore';
 import {
   Image,
   StyleSheet,
@@ -6,78 +8,126 @@ import {
   TouchableOpacity,
   View,
   ScrollView,
-  Alert
+  Alert,
 } from 'react-native';
 
-const doctors = [
-  { id: 1, name: 'Ali Raza', specialty: 'Fever', location: 'Faislabad' },
-  // Add more doctors as needed
-];
-
 const Patient = ({ navigation }) => {
-  const handleViewProfile = () => {
-    navigation.navigate('PatientProfile');
+  const [patientData, setPatientData] = useState([]);
+
+  const fetchData = async () => {
+    try {
+      const usersRef = firestore().collection('patientUsers');
+      const querySnapshot = await usersRef.get();
+
+      const userDataArray = [];
+      querySnapshot.forEach(doc => {
+        if (doc.exists) {
+          const userData = doc.data();
+          const UId = doc.id;
+          const { fullName, gender, phoneNo } = userData;
+
+          userDataArray.push({ fullName, gender, phoneNo, UId });
+        } else {
+          console.log('No such document!');
+        }
+      });
+
+      setPatientData(userDataArray);
+    } catch (error) {
+      console.error('Error fetching documents:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchData();
+    }, [])
+  );
+
+  const handleViewProfile = userId => {
+    navigation.navigate('PatientProfile', { userId });
   };
   const handleDashboard = () => {
     navigation.navigate('DocterDashboard');
-    // console.log('Sign Up successfully!');
   };
   const handleReport = () => {
     navigation.navigate('DocterReport');
-    // console.log('Sign Up successfully!');
   };
   const handleCommunity = () => {
     navigation.navigate('Patients');
-    // console.log('Sign Up successfully!');
   };
   const handleBlog = () => {
     navigation.navigate('DocterDashboard');
-    // console.log('Sign Up successfully!');
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
+    <View style={styles.container}>
       <View style={styles.imageContainer}>
         <Image source={require('../../images/logo.jpg')} style={styles.image} />
       </View>
-      <View style={styles.doctorList}>
-        {doctors.map(doctor => (
-          <TouchableOpacity
-            key={doctor.id}
-            style={styles.doctorItem}
-            onPress={() => handleViewProfile(doctor)}
-          >
-            <Text style={styles.doctorName}>{doctor.name}</Text>
-            <Text style={styles.doctorInfo}>{doctor.specialty}</Text>
-            <Text style={styles.doctorInfo}>{doctor.location}</Text>
-          </TouchableOpacity>
-        ))}
+
+      <View style={styles.listContainer}>
+        <ScrollView contentContainerStyle={styles.scrollContent}>
+          {patientData.map((patient, index) => (
+            <TouchableOpacity
+              key={index}
+              style={styles.patientItem}
+              onPress={() => handleViewProfile(patient.UId)}
+            >
+              <Image
+                source={require('../../images/profile.png')}
+                style={styles.icon}
+              />
+              <View style={styles.text}>
+                <Text style={styles.name}>{patient.fullName}</Text>
+                <Text style={styles.detail}>{patient.gender}</Text>
+                <Text style={styles.detail}>{patient.phoneNo}</Text>
+              </View>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
       </View>
+
       {/* Fixed bottom bar with picture buttons */}
       <View style={styles.bottomBar}>
         <TouchableOpacity style={styles.iconButton} onPress={handleDashboard}>
-          <Image source={require('../../images/icon1.png')} style={styles.icon} />
+          <Image
+            source={require('../../images/icon1.png')}
+            style={styles.icon}
+          />
         </TouchableOpacity>
         <TouchableOpacity style={styles.iconButton} onPress={handleReport}>
-          <Image source={require('../../images/icon2.png')} style={styles.icon} />
+          <Image
+            source={require('../../images/icon2.png')}
+            style={styles.icon}
+          />
         </TouchableOpacity>
         <TouchableOpacity style={styles.iconButton} onPress={handleCommunity}>
-          <Image source={require('../../images/icon3.png')} style={styles.icon} />
+          <Image
+            source={require('../../images/icon3.png')}
+            style={styles.icon}
+          />
         </TouchableOpacity>
         <TouchableOpacity style={styles.iconButton} onPress={handleBlog}>
-          <Image source={require('../../images/icon4.png')} style={styles.icon} />
+          <Image
+            source={require('../../images/icon4.png')}
+            style={styles.icon}
+          />
         </TouchableOpacity>
       </View>
-    </ScrollView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    flexGrow: 1,
-    backgroundColor: '#FFFFFF',
+    flex: 1,
+    backgroundColor: 'white',
     padding: 10,
-    paddingBottom: 80, // Adjust for bottom bar height
   },
   imageContainer: {
     alignItems: 'center',
@@ -87,23 +137,35 @@ const styles = StyleSheet.create({
     width: 180,
     height: 50,
   },
-  doctorList: {
-    marginTop: 30,
-    marginBottom: 20,
+  listContainer: {
+    flex: 1,
+    marginBottom: 60, // Make room for the bottom bar
   },
-  doctorItem: {
+  scrollContent: {
+    paddingBottom: 20,
+  },
+  patientItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
     marginBottom: 20,
     padding: 10,
     borderWidth: 1,
     borderColor: '#e6e6e6',
     borderRadius: 8,
   },
-  doctorName: {
+  name: {
     fontSize: 18,
     fontWeight: 'bold',
   },
-  doctorInfo: {
+  detail: {
     fontSize: 16,
+  },
+  text: {
+    marginLeft: 10,
+  },
+  icon: {
+    width: 30,
+    height: 30,
   },
   bottomBar: {
     flexDirection: 'row',
@@ -121,10 +183,6 @@ const styles = StyleSheet.create({
   iconButton: {
     flex: 1,
     alignItems: 'center',
-  },
-  icon: {
-    width: 30,
-    height: 30,
   },
 });
 

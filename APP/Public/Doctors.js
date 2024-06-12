@@ -1,4 +1,6 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
+import firestore from '@react-native-firebase/firestore';
 import {
   Image,
   StyleSheet,
@@ -6,53 +8,91 @@ import {
   TouchableOpacity,
   View,
   ScrollView,
-  Alert
 } from 'react-native';
 
-const doctors = [
-  { id: 1, name: 'Dr. Ali', specialty: 'Cardiologist', location: 'Faislabad' },
-  // Add more doctors as needed
-];
-
 const Doctor = ({ navigation }) => {
-  const handleViewProfile = () => {
-    navigation.navigate('DoctorProfile');
+  const [doctorData, setDoctorData] = useState([]);
+
+  const fetchData = async () => {
+    try {
+      const usersRef = firestore().collection('doctors');
+      const querySnapshot = await usersRef.get();
+
+      const userDataArray = [];
+      querySnapshot.forEach(doc => {
+        if (doc.exists) {
+          const userData = doc.data();
+          const UId = doc.id;
+          const { fullName, gender, phoneNo } = userData;
+
+          userDataArray.push({ fullName, gender, phoneNo, UId });
+        } else {
+          console.log('No such document!');
+        }
+      });
+
+      setDoctorData(userDataArray);
+    } catch (error) {
+      console.error('Error fetching documents:', error);
+    }
   };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchData();
+    }, [])
+  );
+
+  const handleViewProfile = (userId) => {
+    navigation.navigate('DoctorProfile', { userId });
+  };
+
   const handleDashboard = () => {
     navigation.navigate('Dashboard');
-    // console.log('Sign Up successfully!');
   };
+
   const handleReport = () => {
     navigation.navigate('Report');
-    // console.log('Sign Up successfully!');
   };
+
   const handleCommunity = () => {
     navigation.navigate('Doctor');
-    // console.log('Sign Up successfully!');
   };
+
   const handleBlog = () => {
     navigation.navigate('Dashboard');
-    // console.log('Sign Up successfully!');
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
+    <View style={styles.container}>
       <View style={styles.imageContainer}>
         <Image source={require('../../images/logo.jpg')} style={styles.image} />
       </View>
-      <View style={styles.doctorList}>
-        {doctors.map(doctor => (
+
+      <ScrollView contentContainerStyle={styles.scrollContent}>
+        {doctorData.map((doctor, index) => (
           <TouchableOpacity
-            key={doctor.id}
+            key={index}
             style={styles.doctorItem}
-            onPress={() => handleViewProfile(doctor)}
+            onPress={() => handleViewProfile(doctor.UId)}
           >
-            <Text style={styles.doctorName}>{doctor.name}</Text>
-            <Text style={styles.doctorInfo}>{doctor.specialty}</Text>
-            <Text style={styles.doctorInfo}>{doctor.location}</Text>
+            <Image
+              source={require('../../images/profile.png')}
+              style={styles.icon}
+            />
+            <View style={styles.text}>
+              <Text style={styles.name}>{doctor.fullName}</Text>
+              <Text style={styles.detail}>{doctor.gender}</Text>
+              <Text style={styles.detail}>{doctor.phoneNo}</Text>
+            </View>
           </TouchableOpacity>
         ))}
-      </View>
+      </ScrollView>
+
       {/* Fixed bottom bar with picture buttons */}
       <View style={styles.bottomBar}>
         <TouchableOpacity style={styles.iconButton} onPress={handleDashboard}>
@@ -68,16 +108,15 @@ const Doctor = ({ navigation }) => {
           <Image source={require('../../images/icon4.png')} style={styles.icon} />
         </TouchableOpacity>
       </View>
-    </ScrollView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    flexGrow: 1,
-    backgroundColor: '#FFFFFF',
+    flex: 1,
+    backgroundColor: 'white',
     padding: 10,
-    paddingBottom: 80, // Adjust for bottom bar height
   },
   imageContainer: {
     alignItems: 'center',
@@ -87,23 +126,31 @@ const styles = StyleSheet.create({
     width: 180,
     height: 50,
   },
-  doctorList: {
-    marginTop: 30,
-    marginBottom: 20,
+  scrollContent: {
+    paddingBottom: 100, // Ensure enough space for the bottom bar
   },
   doctorItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
     marginBottom: 20,
     padding: 10,
     borderWidth: 1,
     borderColor: '#e6e6e6',
     borderRadius: 8,
   },
-  doctorName: {
+  name: {
     fontSize: 18,
     fontWeight: 'bold',
   },
-  doctorInfo: {
+  detail: {
     fontSize: 16,
+  },
+  text: {
+    marginLeft: 10,
+  },
+  icon: {
+    width: 30,
+    height: 30,
   },
   bottomBar: {
     flexDirection: 'row',
@@ -121,10 +168,6 @@ const styles = StyleSheet.create({
   iconButton: {
     flex: 1,
     alignItems: 'center',
-  },
-  icon: {
-    width: 30,
-    height: 30,
   },
 });
 

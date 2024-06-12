@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import firestore from '@react-native-firebase/firestore';
 import {
   Image,
   StyleSheet,
@@ -10,33 +11,63 @@ import {
 
 // Sample doctor data
 const doctor = {
-  name: 'Ali Raza',
-  Deseace: 'Fever',
-  location: 'Faisalabad',
   profileImage: require('../../images/profile.png'),
 };
 
-const PatientProfile = ({ navigation }) => {
+const PatientProfile = ({ navigation, route }) => {
+  const { userId } = route.params;
+  const [patientData, setPatientData] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  const fetchData = async () => {
+    try {
+      const userRef = firestore().collection('patientUsers').doc(userId);
+      const docSnapshot = await userRef.get();
+
+      if (docSnapshot.exists) {
+        setPatientData(docSnapshot.data());
+      } else {
+        console.log('User not found.');
+      }
+    } catch (error) {
+      console.error('Error fetching documents:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, [userId]);
+
   const handleChatPress = () => {
-    // Navigate to the chat screen
-    // navigation.navigate('Chat');
-    Alert.alert('Chat', 'Chat with the Patient');
+    navigation.navigate('PatientChat', { userId });
   };
 
   const handleAppointmentPress = () => {
-    // Navigate to the appointment screen
-    // navigation.navigate('Appointment');
     Alert.alert('Appointment', 'Book an appointment with the doctor');
   };
 
+  if (loading) {
+    return (
+      <View style={styles.container}>
+        <Text>Loading user data...</Text>
+      </View>
+    );
+  }
+
   return (
     <View style={styles.container}>
-      <View style={styles.profileContainer}>
-        <Image source={doctor.profileImage} style={styles.profileImage} />
-        <Text style={styles.doctorName}>{doctor.name}</Text>
-        <Text style={styles.doctorInfo}>{doctor.specialty}</Text>
-        <Text style={styles.doctorInfo}>{doctor.location}</Text>
-      </View>
+      {patientData ? (
+        <View style={styles.profileContainer}>
+          <Image source={doctor.profileImage} style={styles.profileImage} />
+          <Text style={styles.doctorName}>{patientData.fullName}</Text>
+          <Text style={styles.doctorInfo}>{patientData.phoneNo}</Text>
+        </View>
+      ) : (
+        <Text>User not found.</Text>
+      )}
+
       <View style={styles.buttonContainer}>
         <TouchableOpacity style={styles.button} onPress={handleChatPress}>
           <Text style={styles.buttonText}>Chat</Text>

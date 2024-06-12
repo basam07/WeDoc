@@ -96,7 +96,7 @@ const DocterSignupForm = ({ navigation }) => {
     try {
       console.log('Saving user data:', userId, fullName, email, phoneNo, bloodGroup, dateOfBirth, gender, married, disease);
   
-      const userRef = firestore().collection('patientUsers').doc(userId);
+      const userRef = firestore().collection('doctors').doc(userId);
       await userRef.set({
         fullName,
         email,
