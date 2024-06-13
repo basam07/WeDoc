@@ -1,12 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, Component, useEffect } from 'react';
+import { WebView } from 'react-native-webview';
 import {
   Image,
   StyleSheet,
-  Text,
   TouchableOpacity,
   View,
   ScrollView,
-  TextInput,
 } from 'react-native';
 
 const DrDashboard = ({ navigation }) => {
@@ -44,24 +43,8 @@ const DrDashboard = ({ navigation }) => {
       <View style={styles.imageContainer}>
         <Image source={require('../../images/logo.jpg')} style={styles.image} />
       </View>
-      <View style={styles.searchContainer}>
-        <Text style={styles.title}>WeDoc for Help</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Search..."
-          value={search}
-          onChangeText={(text) => setSearch(text)}
-        />
-        {searchError ? <Text style={styles.errorText}>{searchError}</Text> : null}
-        <TouchableOpacity onPress={handleSearch} style={styles.button}>
-          <Text style={styles.buttonText}>Search</Text>
-        </TouchableOpacity>
-      </View>
-      <Text style={styles.searchtitle}>Results:</Text>
-      <Text style={styles.output}>
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-        
-      </Text>
+      <WebView source={{ uri: 'http://geekgenies.com/cch' }} style={styles.webView} />
+      
 
       {/* Fixed bottom bar with picture buttons */}
       <View style={styles.bottomBar}>
@@ -89,6 +72,13 @@ const styles = StyleSheet.create({
     padding: 10,
     paddingBottom: 80, // Adjust for bottom bar height
   },
+  webView: {
+    flex: 1,
+    marginTop: 5,
+    padding:50,
+    height: 400,
+  },
+
   imageContainer: {
     alignItems: 'center',
     marginBottom: 20,

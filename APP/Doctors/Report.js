@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { WebView } from 'react-native-webview';
 import {
   Image,
   StyleSheet,
@@ -46,18 +47,8 @@ const handleOpenCamera = () => {
       <View style={styles.imageContainer}>
         <Image source={require('../../images/logo.jpg')} style={styles.image} />
       </View>
-      <View style={styles.searchContainer}>
-        <Text style={styles.title}>ECG Checker</Text>
-        <View style={styles.imagePreview}>
-          {selectedImage && <Image source={selectedImage} style={styles.previewImage} />}
-        </View>
-        <TouchableOpacity onPress={handleSelectImage} style={styles.button}>
-          <Text style={styles.buttonText}>Select Image</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={handleOpenCamera} style={styles.button}>
-          <Text style={styles.buttonText}>Open Camera</Text>
-        </TouchableOpacity>
-      </View>
+
+      <WebView source={{ uri: 'http://geekgenies.com/eee' }} style={styles.webView} />
       
       {/* Fixed bottom bar with picture buttons */}
       <View style={styles.bottomBar}>
